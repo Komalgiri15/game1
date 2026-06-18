@@ -10,9 +10,10 @@ import { DifficultySelect } from './components/DifficultySelect'
 import { FinalTruthIntro } from './components/FinalTruthIntro'
 import { GameShell } from './components/GameShell'
 import { LogoMark } from './components/LogoMark'
-import { Roadmap } from './components/Roadmap'
+import { PreviewJourneyScreen } from './components/PreviewJourneyScreen'
 import { ResultsScreen } from './components/ResultsScreen'
 import { StageClearTransition } from './components/StageClearTransition'
+import { HowToPlayModal } from './components/HowToPlayModal'
 import { ArcadeGameplayScreen } from './screens/ArcadeGameplayScreen'
 
 const IN_GAME_PHASES: GamePhase[] = [
@@ -46,6 +47,7 @@ export default function App() {
   const [reachedFinalTruth, setReachedFinalTruth] = useState(false)
   const [clearedStageIndex, setClearedStageIndex] = useState(0)
   const [finalTruthParts, setFinalTruthParts] = useState<FinalTruthPart[]>([])
+  const [showHowToPlay, setShowHowToPlay] = useState(false)
 
   const difficulty = DIFFICULTY_LEVELS.find((d) => d.id === difficultyId)
   const maxClarity = difficulty?.startingClarity ?? 5
@@ -64,6 +66,7 @@ export default function App() {
     setReachedFinalTruth(false)
     setClearedStageIndex(0)
     setFinalTruthParts([])
+    setShowHowToPlay(false)
   }
 
   const beginIntro = () => {
@@ -199,10 +202,14 @@ export default function App() {
       )}
 
       {phase === 'setup-spirit' && (
-        <div className="screen screen--setup">
+        <div className="screen screen--setup screen--spirit">
           <LogoMark />
           <header className="screen-header screen-header--compact">
-            <h1 className="headline-md">Almost ready</h1>
+            <p className="label-caps setup-spirit-eyebrow">Step 2 of 2</p>
+            <h1 className="headline-md">Choose your companion</h1>
+            <p className="body-md setup-spirit-sub">
+              Pick who drifts with you through the clouds — each type has its own sky.
+            </p>
           </header>
 
           <SetupSteps current={2} />
@@ -218,25 +225,30 @@ export default function App() {
             <Button onClick={beginIntro} variant="secondary">
               Preview Journey
             </Button>
-            <Button onClick={beginPlay}>Start Playing</Button>
+            <Button onClick={() => setShowHowToPlay(true)}>Start Playing</Button>
           </footer>
+
+          {showHowToPlay && (
+            <HowToPlayModal
+              onStart={() => {
+                setShowHowToPlay(false)
+                beginPlay()
+              }}
+              onClose={() => setShowHowToPlay(false)}
+            />
+          )}
         </div>
       )}
 
       {phase === 'intro' && difficulty && (
-        <div className="screen screen--intro">
-          <header className="screen-header">
-            <h2 className="headline-md">Your Journey Ahead</h2>
-            <p className="body-md">
-              Drag anywhere to move your type. Tap large myth bubbles to bust
-              them. Collect sage fact orbs — but don&apos;t tap them by mistake.
-            </p>
-          </header>
-          <Roadmap clarity={clarity} maxClarity={maxClarity} />
-          <footer className="screen-footer">
-            <Button onClick={beginPlay}>Begin Perimenopause</Button>
-          </footer>
-        </div>
+        <PreviewJourneyScreen
+          avatarId={avatarId}
+          difficulty={difficulty}
+          clarity={clarity}
+          maxClarity={maxClarity}
+          onBegin={beginPlay}
+          onBack={() => setPhase('setup-spirit')}
+        />
       )}
 
       {inGame && difficultyId && (
@@ -290,7 +302,7 @@ export default function App() {
         </div>
       )}
 
-      {!inGame && !['setup-cards', 'setup-spirit'].includes(phase) && (
+      {!inGame && !['setup-cards', 'setup-spirit', 'intro'].includes(phase) && (
         <footer className="app-credit">
           Based on{' '}
           <em>

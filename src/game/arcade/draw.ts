@@ -59,80 +59,140 @@ export function drawFactOrb(
   ctx.textAlign = 'left'
 }
 
+function hexAlpha(hex: string, alpha: number): string {
+  const n = hex.replace('#', '')
+  const r = parseInt(n.slice(0, 2), 16)
+  const g = parseInt(n.slice(2, 4), 16)
+  const b = parseInt(n.slice(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 function mythDrawPos(myth: MythBubble) {
+  const drift = Math.sin(myth.wobblePhase) * 4
+  const bob = Math.cos(myth.wobblePhase * 0.55) * 2.5
   return {
-    x: myth.x + Math.sin(myth.wobblePhase) * 5,
-    y: myth.y + Math.cos(myth.wobblePhase * 0.7) * 3,
+    x: myth.x + drift,
+    y: myth.y + bob,
   }
+}
+
+function emergeEase(myth: MythBubble): number {
+  if (myth.isBoss) return 1
+  const t = Math.min(1, myth.spawnAge / myth.spawnDuration)
+  return 1 - Math.pow(1 - t, 3)
+}
+
+function fitMythText(
+  ctx: CanvasRenderingContext2D,
+  statement: string,
+  maxWidth: number,
+  maxHeight: number,
+  isBoss: boolean,
+): { lines: string[]; fontSize: number; lineH: number } {
+  const base = isBoss ? 16 : 14
+  const min = isBoss ? 13 : 11
+  for (let size = base; size >= min; size--) {
+    ctx.font = `600 ${size}px "Plus Jakarta Sans", sans-serif`
+    const lines = wrapText(ctx, statement, maxWidth, 5)
+    const lineH = size + 3
+    if (lines.length * lineH <= maxHeight) {
+      return { lines, fontSize: size, lineH }
+    }
+  }
+  ctx.font = `600 ${min}px "Plus Jakarta Sans", sans-serif`
+  const lines = wrapText(ctx, statement, maxWidth, 4)
+  return { lines, fontSize: min, lineH: min + 3 }
 }
 
 export function drawMythBubble(
   ctx: CanvasRenderingContext2D,
   myth: MythBubble,
-  color: string,
-  dim: string,
   isFinal: boolean,
 ) {
   const { x, y } = mythDrawPos(myth)
-  const r = myth.radius * (myth.dying ? 1 + (0.4 - myth.dieTimer) * 0.5 : 1)
-  const alpha = myth.dying ? myth.dieTimer / 0.4 : 1
   const isBoss = isFinal || !!myth.isBoss
+  const color = myth.bubbleColor
+  const dim = myth.bubbleColorDim
+  const haloTint = myth.bubbleHalo
+  const emerge = emergeEase(myth)
+  const baseR = myth.radius * (0.35 + emerge * 0.65)
+  const r = baseR * (myth.dying ? 1 + (0.4 - myth.dieTimer) * 0.35 : 1)
+  const alpha = (myth.dying ? myth.dieTimer / 0.4 : 1) * (isBoss ? 1 : 0.35 + emerge * 0.65)
 
+  ctx.save()
   ctx.globalAlpha = alpha
 
-  // Soft outer glow
-  ctx.shadowColor = isBoss ? 'rgba(214, 168, 92, 0.7)' : 'rgba(181, 87, 122, 0.45)'
-  ctx.shadowBlur = isBoss ? 32 : 22
+  // Soft outer halo
+  const halo = ctx.createRadialGradient(x, y, r * 0.4, x, y, r * 1.35)
+  halo.addColorStop(0, haloTint)
+  halo.addColorStop(0.55, hexAlpha(color, 0.08))
+  halo.addColorStop(1, 'rgba(255, 255, 255, 0)')
+  ctx.fillStyle = halo
+  ctx.beginPath()
+  ctx.arc(x, y, r * 1.35, 0, Math.PI * 2)
+  ctx.fill()
 
-  // Main bubble — bright, readable
-  const g = ctx.createRadialGradient(x, y - r * 0.15, r * 0.05, x, y, r)
-  g.addColorStop(0, 'rgba(255, 255, 255, 0.98)')
-  g.addColorStop(0.45, 'rgba(255, 251, 247, 0.95)')
-  g.addColorStop(0.75, dim)
-  g.addColorStop(1, isBoss ? 'rgba(255, 222, 173, 0.55)' : 'rgba(255, 185, 205, 0.5)')
-  ctx.fillStyle = g
+  // Translucent soap-bubble body
+  const body = ctx.createRadialGradient(x - r * 0.28, y - r * 0.32, r * 0.05, x, y, r)
+  body.addColorStop(0, 'rgba(255, 255, 255, 0.72)')
+  body.addColorStop(0.35, 'rgba(255, 252, 250, 0.42)')
+  body.addColorStop(0.7, isBoss ? 'rgba(255, 222, 173, 0.22)' : hexAlpha(dim, 0.35))
+  body.addColorStop(1, isBoss ? 'rgba(214, 168, 92, 0.28)' : hexAlpha(color, 0.28))
+  ctx.fillStyle = body
   ctx.beginPath()
   ctx.arc(x, y, r, 0, Math.PI * 2)
   ctx.fill()
 
-  // Inner highlight ring
-  ctx.strokeStyle = isBoss ? '#d6a85c' : color
-  ctx.lineWidth = isBoss ? 3.5 : 3
-  ctx.stroke()
-
+  // Specular highlight (top-left crescent)
+  ctx.save()
   ctx.beginPath()
-  ctx.arc(x, y, r * 0.88, 0, Math.PI * 2)
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)'
-  ctx.lineWidth = 1.5
-  ctx.stroke()
+  ctx.arc(x, y, r * 0.92, 0, Math.PI * 2)
+  ctx.clip()
+  const spec = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, 0, x - r * 0.2, y - r * 0.25, r * 0.55)
+  spec.addColorStop(0, 'rgba(255, 255, 255, 0.85)')
+  spec.addColorStop(0.45, 'rgba(255, 255, 255, 0.25)')
+  spec.addColorStop(1, 'rgba(255, 255, 255, 0)')
+  ctx.fillStyle = spec
+  ctx.fillRect(x - r, y - r, r * 2, r * 2)
 
-  ctx.shadowBlur = 0
+  // Tiny secondary gleam
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+  ctx.beginPath()
+  ctx.ellipse(x + r * 0.22, y + r * 0.18, r * 0.07, r * 0.05, -0.4, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
 
-  // Myth label tag
-  const tag = isBoss ? 'MYTH' : 'TAP TO BUST'
-  ctx.font = `700 ${isBoss ? 11 : 10}px "Plus Jakarta Sans", sans-serif`
-  ctx.textAlign = 'center'
-  ctx.fillStyle = isBoss ? '#8a6a2e' : color
-  ctx.fillText(tag, x, y - r + (isBoss ? 20 : 18))
+  if (emerge > 0.5) {
+    const textAlpha = Math.min(1, (emerge - 0.5) / 0.5)
+    ctx.globalAlpha = alpha * textAlpha
 
-  const fontSize = isBoss ? 17 : 15
-  ctx.font = `600 ${fontSize}px "Plus Jakarta Sans", sans-serif`
-  const lines = wrapText(ctx, myth.statement, r * 1.5)
-  const lineH = fontSize + 5
-  const startY = y - ((lines.length - 1) * lineH) / 2 + 4
+    const tag = isBoss ? 'MYTH' : 'TAP TO BUST'
+    const tagSize = isBoss ? 10 : 9
+    ctx.font = `700 ${tagSize}px "Plus Jakarta Sans", sans-serif`
+    ctx.textAlign = 'center'
+    ctx.fillStyle = isBoss ? 'rgba(138, 106, 46, 0.8)' : hexAlpha(color, 0.85)
+    ctx.fillText(tag, x, y - r + (isBoss ? 18 : 16))
 
-  for (let i = 0; i < lines.length; i++) {
-    const ly = startY + i * lineH
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)'
-    ctx.lineWidth = 3
-    ctx.lineJoin = 'round'
-    ctx.strokeText(lines[i], x, ly)
-    ctx.fillStyle = '#2d2520'
-    ctx.fillText(lines[i], x, ly)
+    const textAreaH = r * 1.55
+    const { lines, fontSize, lineH } = fitMythText(
+      ctx,
+      myth.statement,
+      r * 1.62,
+      textAreaH,
+      isBoss,
+    )
+    ctx.font = `600 ${fontSize}px "Plus Jakarta Sans", sans-serif`
+    const startY = y - ((lines.length - 1) * lineH) / 2 + 2
+
+    for (let i = 0; i < lines.length; i++) {
+      const ly = startY + i * lineH
+      ctx.fillStyle = isBoss ? 'rgba(106, 82, 38, 0.9)' : hexAlpha(color, 0.92)
+      ctx.fillText(lines[i], x, ly)
+    }
   }
 
   ctx.textAlign = 'left'
-  ctx.globalAlpha = 1
+  ctx.restore()
 }
 
 export function drawPlayer(
@@ -187,13 +247,7 @@ export function drawWorld(ctx: CanvasRenderingContext2D, world: ArcadeWorld) {
 
   const isGold = world.isFinal
   for (const m of world.myths) {
-    drawMythBubble(
-      ctx,
-      m,
-      world.stageColor,
-      world.stageColorDim,
-      isGold || !!m.isBoss,
-    )
+    drawMythBubble(ctx, m, isGold || !!m.isBoss)
   }
 
   drawParticles(ctx, world.particles)

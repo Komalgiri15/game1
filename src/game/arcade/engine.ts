@@ -1,5 +1,5 @@
 import type { BustedMyth, DifficultyId, FinalTruthPart } from '../types'
-import { DIFFICULTY_SPAWN, DIFFICULTY_SPEED, STAGES } from '../constants'
+import { DIFFICULTY_SPAWN, DIFFICULTY_SPEED, MYTH_BUBBLE_PALETTE, STAGES, stageSpeedMultiplier } from '../constants'
 import { createClouds } from './clouds'
 import { mythDrawPos } from './draw'
 import { circleHit, clamp, pointInCircle } from './physics'
@@ -18,6 +18,7 @@ import {
   spawnBoss,
   spawnFactOrb,
   spawnMythBubble,
+  type SpawnObstacle,
 } from './spawn'
 import { drawWorld, spawnBurst } from './draw'
 import type { ArcadeWorld, MythBubble } from './types'
@@ -69,7 +70,7 @@ export function createWorld(opts: CreateWorldOpts): ArcadeWorld {
     floatTexts: [],
     mythQueue: opts.isFinal ? [] : buildMythQueue(opts.stageIndex, opts.difficultyId),
     factQueue: buildFactQueue(),
-    spawnTimer: 0.8,
+    spawnTimer: 1.6,
     factSpawnTimer: 1.5,
     mythsBusted: 0,
     mythsNeeded: opts.isFinal ? opts.finalParts.length : stage.correctToClear,
@@ -103,7 +104,12 @@ export function createWorld(opts: CreateWorldOpts): ArcadeWorld {
     difficultySpawn: DIFFICULTY_SPAWN[opts.difficultyId] ?? 2,
     truthMasterShown: false,
     clouds: createClouds(opts.width, opts.height, 12),
+    lastBubblePaletteIndex: -1,
   }
+}
+
+function effectiveDriftSpeed(world: ArcadeWorld): number {
+  return world.difficultySpeed * stageSpeedMultiplier(world.stageIndex)
 }
 
 function popMyth(world: ArcadeWorld) {
@@ -143,6 +149,22 @@ function loseClarity(world: ArcadeWorld, cbs: ArcadeCallbacks) {
   }
 }
 
+function collectSpawnObstacles(world: ArcadeWorld): SpawnObstacle[] {
+  const obstacles: SpawnObstacle[] = []
+  for (const m of world.myths) {
+    if (m.dying) continue
+    obstacles.push({
+      x: m.x + Math.sin(m.wobblePhase) * 4,
+      y: m.y + Math.cos(m.wobblePhase * 0.55) * 2.5,
+      radius: m.radius,
+    })
+  }
+  for (const f of world.facts) {
+    obstacles.push({ x: f.x, y: f.y, radius: f.radius })
+  }
+  return obstacles
+}
+
 function bustMyth(world: ArcadeWorld, myth: MythBubble, cbs: ArcadeCallbacks) {
   myth.dying = true
   myth.dieTimer = 0.4
@@ -155,7 +177,7 @@ function bustMyth(world: ArcadeWorld, myth: MythBubble, cbs: ArcadeCallbacks) {
   world.mythsBusted += 1
 
   addFloatText(world, myth.x, myth.y - 20, `+${pts}`, '#d6a85c')
-  spawnBurst(world, myth.x, myth.y, world.stageColor)
+  spawnBurst(world, myth.x, myth.y, myth.bubbleColor)
 
   const badge = checkNewBadge(world.combo, world.badgesEarned)
   if (badge) {
@@ -280,6 +302,7 @@ export function updateWorld(
         m.x += m.vx * dt
         m.y += m.vy * dt
         m.wobblePhase += m.wobble * dt
+        m.spawnAge += dt
         m.x = clamp(m.x, m.radius, world.width - m.radius)
         if (m.x <= m.radius || m.x >= world.width - m.radius) m.vx *= -1
       }
@@ -328,21 +351,45 @@ export function updateWorld(
   })
 
   if (!world.isFinal) {
-    world.spawnTimer -= dt
-    if (world.spawnTimer <= 0 && world.myths.filter((m) => !m.dying).length < 4) {
-      const q = popMyth(world)
-      if (q) {
-        world.myths.push(spawnMythBubble(world.width, q, world.difficultySpeed))
+    const activeMyths = world.myths.filter((m) => !m.dying).length
+    if (activeMyths === 0 && world.mythsBusted < world.mythsNeeded) {
+      world.spawnTimer -= dt
+      if (world.spawnTimer <= 0) {
+        const q = popMyth(world)
+        if (q) {
+          const bubble = spawnMythBubble(
+            world.width,
+            q,
+            effectiveDriftSpeed(world),
+            collectSpawnObstacles(world),
+            undefined,
+            undefined,
+            false,
+            world.lastBubblePaletteIndex,
+          )
+          world.myths.push(bubble)
+          const idx = bubble.bubbleColor
+            ? MYTH_BUBBLE_PALETTE.findIndex((p) => p.color === bubble.bubbleColor)
+            : -1
+          if (idx >= 0) world.lastBubblePaletteIndex = idx
+          world.spawnTimer = world.difficultySpawn
+        }
       }
-      world.spawnTimer = world.difficultySpawn
     }
 
     world.factSpawnTimer -= dt
-    if (world.factSpawnTimer <= 0 && world.facts.length < 3) {
+    const maxFacts = activeMyths > 0 ? 3 : 4
+    if (world.factSpawnTimer <= 0 && world.facts.length < maxFacts) {
       world.facts.push(
-        spawnFactOrb(world.width, popFact(world), world.difficultySpeed * 0.85),
+        spawnFactOrb(
+          world.width,
+          popFact(world),
+          effectiveDriftSpeed(world),
+          collectSpawnObstacles(world),
+          world.facts.length,
+        ),
       )
-      world.factSpawnTimer = world.difficultySpawn * 1.4
+      world.factSpawnTimer = world.difficultySpawn * 1.0
     }
   } else if (!world.bossActive && world.myths.length === 0) {
     world.spawnTimer -= dt

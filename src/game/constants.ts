@@ -487,15 +487,30 @@ export const AVATARS: AvatarDef[] = [
 
 /** Drift speed multiplier by difficulty (higher = faster myths) */
 export const DIFFICULTY_SPEED: Record<string, number> = {
-  'starting-out': 0.75,
-  informed: 1,
-  confident: 1.35,
+  'starting-out': 0.85,
+  informed: 1.0,
+  confident: 1.2,
 }
 
-/** Spawn interval seconds by difficulty */
+/** Seconds between myth bubbles (one at a time) */
 export const DIFFICULTY_SPAWN: Record<string, number> = {
-  'starting-out': 2.8,
-  informed: 2.1,
+  'starting-out': 2.3,
+  informed: 1.9,
   confident: 1.5,
+}
+
+/** Luminous soap-bubble palette — each myth picks a random hue */
+export const MYTH_BUBBLE_PALETTE = [
+  { color: '#b5577a', dim: '#ffd9e3', halo: 'rgba(255, 190, 210, 0.2)' },
+  { color: '#8e7fb8', dim: '#e8ddff', halo: 'rgba(195, 180, 255, 0.2)' },
+  { color: '#d6a85c', dim: '#ffead0', halo: 'rgba(255, 215, 160, 0.22)' },
+  { color: '#6a9e8a', dim: '#d8f0e4', halo: 'rgba(170, 220, 195, 0.2)' },
+  { color: '#5a8eb8', dim: '#d4eaf8', halo: 'rgba(160, 205, 240, 0.2)' },
+  { color: '#c96a88', dim: '#ffe2ec', halo: 'rgba(255, 175, 200, 0.2)' },
+] as const
+
+/** Stage 1 = 1×, stage 2 = 1.5×, stage 3 = 2× drift speed */
+export function stageSpeedMultiplier(stageIndex: number): number {
+  return 1 + stageIndex * 0.5
 }
 

@@ -9,16 +9,26 @@ interface AvatarSelectProps {
   onSelect: (id: AvatarId) => void
 }
 
+const LEGEND = [
+  { key: 'drag', label: 'Drag to move' },
+  { key: 'tap', label: 'Tap myths' },
+  { key: 'orb', label: 'Collect orbs' },
+] as const
+
 export function AvatarSelect({ selected, onSelect }: AvatarSelectProps) {
+  const active = AVATARS.find((a) => a.id === selected)
+
   return (
     <div className="avatar-select">
-      <h2 className="headline-md section-title">Step 2 — Choose your type</h2>
-      <p className="body-md section-sub">
-        Pick who moves with you through the clouds. Tap myth bubbles only —
-        collect truth orbs by moving into them.
-      </p>
+      <ul className="avatar-legend" aria-label="How to play">
+          {LEGEND.map((item) => (
+            <li key={item.key} className="avatar-legend-chip">
+              {item.label}
+            </li>
+          ))}
+        </ul>
 
-      <SpiritArenaPreview avatarId={selected} />
+      <SpiritArenaPreview avatarId={selected} tall showLegends />
 
       <div className="spirit-card-grid" role="listbox" aria-label="Type options">
         {AVATARS.map((a) => (
@@ -30,6 +40,7 @@ export function AvatarSelect({ selected, onSelect }: AvatarSelectProps) {
             onClick={() => onSelect(a.id)}
             title={a.description}
             aria-pressed={selected === a.id}
+            aria-label={`${a.label}. ${a.description}`}
           >
             <div className="spirit-card-art">
               <AnimatedSkySvg variant={a.id} className="spirit-card-sky" />
@@ -41,9 +52,20 @@ export function AvatarSelect({ selected, onSelect }: AvatarSelectProps) {
               />
             </div>
             <span className="spirit-card-label">{a.label}</span>
+            {selected === a.id && (
+              <span className="spirit-card-check" aria-hidden>
+                ✓
+              </span>
+            )}
           </button>
         ))}
       </div>
+
+      {active && (
+        <p className="avatar-selected-desc">
+          <strong>{active.label}</strong> — {active.description}
+        </p>
+      )}
     </div>
   )
 }

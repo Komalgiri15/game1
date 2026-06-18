@@ -15,10 +15,15 @@ export interface MythBubble {
   truth: string
   wobble: number
   wobblePhase: number
+  spawnAge: number
+  spawnDuration: number
   dying: boolean
   dieTimer: number
   isBoss?: boolean
   bossPart?: number
+  bubbleColor: string
+  bubbleColorDim: string
+  bubbleHalo: string
 }
 
 export interface FactOrb {
@@ -128,6 +133,7 @@ export interface ArcadeWorld {
   difficultySpawn: number
   truthMasterShown: boolean
   clouds: Cloud[]
+  lastBubblePaletteIndex: number
 }
 
 export function stageAvatarForm(stageIndex: number, isFinal: boolean): AvatarId {

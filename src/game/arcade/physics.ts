@@ -31,6 +31,7 @@ export function wrapText(
   ctx: CanvasRenderingContext2D,
   text: string,
   maxWidth: number,
+  maxLines = 5,
 ): string[] {
   const words = text.split(' ')
   const lines: string[] = []
@@ -45,5 +46,5 @@ export function wrapText(
     }
   }
   if (line) lines.push(line)
-  return lines.slice(0, 3)
+  return lines.slice(0, maxLines)
 }

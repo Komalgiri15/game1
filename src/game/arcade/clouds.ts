@@ -81,7 +81,15 @@ export function drawSkyGradient(
   ctx.fillRect(0, 0, w, h)
 }
 
-/** Mini myth cloud for previews */
+/** Mini myth cloud for previews — soft bubble, no outline */
+function hexAlpha(hex: string, alpha: number): string {
+  const n = hex.replace('#', '')
+  const r = parseInt(n.slice(0, 2), 16)
+  const g = parseInt(n.slice(2, 4), 16)
+  const b = parseInt(n.slice(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 export function drawMiniMythCloud(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -91,28 +99,32 @@ export function drawMiniMythCloud(
   color: string,
   dim: string,
 ) {
-  ctx.shadowColor = 'rgba(181, 87, 122, 0.4)'
-  ctx.shadowBlur = 16
-  const g = ctx.createRadialGradient(x, y - r * 0.1, 2, x, y, r)
-  g.addColorStop(0, 'rgba(255,255,255,0.98)')
-  g.addColorStop(0.6, dim)
-  g.addColorStop(1, 'rgba(255, 185, 205, 0.45)')
+  const halo = ctx.createRadialGradient(x, y, r * 0.35, x, y, r * 1.2)
+  halo.addColorStop(0, hexAlpha(dim, 0.35))
+  halo.addColorStop(1, 'rgba(255, 255, 255, 0)')
+  ctx.fillStyle = halo
+  ctx.beginPath()
+  ctx.arc(x, y, r * 1.2, 0, Math.PI * 2)
+  ctx.fill()
+
+  const g = ctx.createRadialGradient(x - r * 0.25, y - r * 0.28, 2, x, y, r)
+  g.addColorStop(0, 'rgba(255, 255, 255, 0.75)')
+  g.addColorStop(0.5, hexAlpha(dim, 0.45))
+  g.addColorStop(1, hexAlpha(color, 0.28))
   ctx.fillStyle = g
   ctx.beginPath()
   ctx.arc(x, y, r, 0, Math.PI * 2)
   ctx.fill()
-  ctx.strokeStyle = color
-  ctx.lineWidth = 2.5
-  ctx.stroke()
-  ctx.shadowBlur = 0
 
   ctx.font = '700 8px "Plus Jakarta Sans", sans-serif'
   ctx.fillStyle = color
   ctx.textAlign = 'center'
   ctx.fillText('MYTH', x, y - r + 14)
   ctx.font = '600 10px "Plus Jakarta Sans", sans-serif'
-  ctx.fillStyle = '#2d2520'
+  ctx.fillStyle = color
+  ctx.globalAlpha = 0.9
   ctx.fillText(label, x, y + 4)
+  ctx.globalAlpha = 1
   ctx.textAlign = 'left'
 }
 

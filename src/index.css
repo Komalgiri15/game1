@@ -366,6 +366,37 @@ body:has(.app--in-game) #root {
   margin-bottom: 0;
 }
 
+.setup-spirit-eyebrow {
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.setup-spirit-sub {
+  margin-top: 8px;
+  font-size: 15px;
+  line-height: 1.45;
+  max-width: 400px;
+  margin-inline: auto;
+}
+
+.screen--spirit .screen-header--compact {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.screen--spirit .setup-steps {
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
+.screen--spirit .avatar-select {
+  margin-top: 0;
+}
+
+.screen--spirit .avatar-legend {
+  margin-bottom: 12px;
+}
+
 .setup-steps {
   display: flex;
   justify-content: center;
@@ -1206,6 +1237,272 @@ body:has(.app--in-game) #root {
   color: var(--gold);
 }
 
+/* How to play modal */
+.how-to-play-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px var(--container-pad);
+}
+
+.how-to-play-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(45, 36, 42, 0.45);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+}
+
+.how-to-play-card {
+  position: relative;
+  width: min(100%, 520px);
+  max-height: min(90dvh, 580px);
+  overflow-y: auto;
+  padding: 20px 20px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--outline-variant);
+  background: linear-gradient(165deg, var(--cream) 0%, #fff8f6 55%, var(--tertiary-fixed) 100%);
+  box-shadow: var(--shadow-card-elevated), var(--shadow-glow-rose);
+  text-align: center;
+}
+
+.how-to-play-eyebrow {
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.how-to-play-title {
+  margin-bottom: 14px;
+  font-size: clamp(20px, 4vw, 24px);
+}
+
+/* Hero — hand tapping bubble */
+.how-to-play-hero {
+  margin-bottom: 16px;
+  padding: 12px 8px 8px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(255, 248, 244, 0.9) 0%, rgba(255, 217, 227, 0.25) 100%);
+  border: 1px solid var(--primary-container);
+}
+
+.how-to-play-hero-svg {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.how-to-play-bubble-tag {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  fill: #b5577a;
+  letter-spacing: 0.08em;
+}
+
+.how-to-play-bubble-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  fill: #973f61;
+}
+
+.how-to-play-orb-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 7px;
+  font-weight: 700;
+  fill: #5a7a5a;
+}
+
+.how-to-play-tap-hand {
+  transform-origin: 88px 98px;
+  animation: how-to-play-hand-tap 2.2s ease-in-out infinite;
+}
+
+@keyframes how-to-play-hand-tap {
+  0%, 18%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  42% {
+    transform: translate(52px, -28px) rotate(-4deg);
+  }
+  50% {
+    transform: translate(58px, -32px) rotate(-4deg) scale(0.97);
+  }
+}
+
+.how-to-play-fingertip {
+  animation: how-to-play-fingertip-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes how-to-play-fingertip-pulse {
+  0%, 40%, 100% { opacity: 0.2; r: 3; }
+  50% { opacity: 0.85; }
+}
+
+.how-to-play-ripple {
+  transform-origin: 200px 52px;
+  opacity: 0;
+}
+
+.how-to-play-ripple--1 {
+  animation: how-to-play-ripple 2.2s ease-out infinite;
+}
+
+.how-to-play-ripple--2 {
+  animation: how-to-play-ripple 2.2s ease-out 0.15s infinite;
+}
+
+@keyframes how-to-play-ripple {
+  0%, 38%, 100% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  48% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  65% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+.how-to-play-bubble {
+  animation: how-to-play-bubble-wobble 2.2s ease-in-out infinite;
+}
+
+@keyframes how-to-play-bubble-wobble {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-2px, 1px); }
+}
+
+.how-to-play-hero-caption {
+  margin-top: 6px;
+  font-size: 9px;
+  color: var(--outline);
+}
+
+/* 4 visual steps */
+.how-to-play-steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.how-to-play-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px 8px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--outline-variant);
+  position: relative;
+}
+
+.how-to-play-step--tap {
+  border-color: var(--primary-container);
+  background: linear-gradient(180deg, #fff8f6 0%, rgba(255, 217, 227, 0.35) 100%);
+  box-shadow: var(--shadow-glow-rose);
+}
+
+.how-to-play-step-num {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.how-to-play-step-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.how-to-play-step-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.how-to-play-step strong {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-soft);
+  line-height: 1.2;
+}
+
+.how-to-play-step-hint {
+  font-size: 9px;
+  line-height: 1.25;
+  color: var(--on-surface-variant);
+}
+
+.how-to-play-clarity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-full);
+  background: var(--surface-container-low);
+  border: 1px solid var(--primary-container);
+}
+
+.how-to-play-clarity-bar {
+  width: 36px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--gold), var(--primary));
+}
+
+.how-to-play-clarity strong {
+  color: var(--text-soft);
+}
+
+.how-to-play-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: stretch;
+}
+
+.how-to-play-actions .btn {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .how-to-play-steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .how-to-play-card {
+    width: min(100%, 100%);
+  }
+}
+
 /* Final Truth intro */
 .final-intro {
   position: fixed;
@@ -1675,17 +1972,335 @@ body:has(.app--in-game) #root {
 }
 
 .avatar-select {
-  margin-top: 24px;
+  margin-top: 8px;
+}
+
+.avatar-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.avatar-legend-chip {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--primary-container);
+  color: var(--primary);
+}
+
+.avatar-selected-desc {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--cream) 0%, #fff8f6 100%);
+  border: 1px solid var(--outline-variant);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--on-surface-variant);
+  text-align: center;
+}
+
+.avatar-selected-desc strong {
+  color: var(--primary);
 }
 
 .spirit-arena-wrap {
-  margin: 16px 0 20px;
+  margin: 12px 0 16px;
   border-radius: var(--radius-xl);
   overflow: hidden;
-  border: 2px solid var(--outline-variant);
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--primary-container);
+  box-shadow: var(--shadow-card), var(--shadow-glow-rose);
   position: relative;
   min-height: 200px;
+}
+
+.spirit-arena-wrap--tall {
+  min-height: 240px;
+}
+
+.spirit-arena-legends {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.spirit-arena-legend {
+  position: absolute;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 251, 247, 0.88);
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  backdrop-filter: blur(4px);
+}
+
+.spirit-arena-legend--myth {
+  top: 18%;
+  right: 8%;
+  color: var(--primary);
+  border-color: var(--primary-container);
+}
+
+.spirit-arena-legend--fact {
+  top: 42%;
+  left: 6%;
+  color: #5a7a5a;
+  border-color: rgba(126, 158, 126, 0.35);
+}
+
+.spirit-arena-legend--spirit {
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.spirit-card {
+  position: relative;
+}
+
+.spirit-card-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: var(--shadow-glow-rose);
+}
+
+.spirit-card--selected {
+  border-color: var(--primary);
+  background: linear-gradient(180deg, #fff8f6 0%, var(--cream) 100%);
+  box-shadow: var(--shadow-glow-rose), var(--shadow-card);
+}
+
+.spirit-card--selected .spirit-card-art {
+  box-shadow: inset 0 0 0 1px var(--primary-container);
+}
+
+/* Preview Journey screen */
+.screen--preview-journey {
+  position: relative;
+  padding-top: 48px;
+  padding-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.preview-journey-header {
+  text-align: center;
+}
+
+.preview-journey-eyebrow {
+  color: var(--primary);
+  margin-bottom: 6px;
+}
+
+.preview-journey-lead {
+  max-width: 420px;
+  margin: 0 auto;
+  font-size: 15px;
+}
+
+.preview-journey-lead strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.preview-journey-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.preview-journey-hero .spirit-arena-wrap {
+  margin: 0;
+}
+
+.preview-journey-spirit-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--outline-variant);
+  text-align: center;
+}
+
+.preview-journey-spirit-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.preview-journey-spirit-desc {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  line-height: 1.4;
+}
+
+.preview-journey-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.preview-journey-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+}
+
+.preview-journey-badge--pace {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.preview-journey-badge--clarity {
+  background: var(--tertiary-fixed);
+  color: var(--on-tertiary-fixed-variant);
+}
+
+.preview-journey-tips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.preview-journey-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--outline-variant);
+}
+
+.preview-journey-tip-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--cream);
+  font-size: 14px;
+  color: var(--primary);
+}
+
+.preview-journey-tip strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+
+.preview-journey-tip p {
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--on-surface-variant);
+}
+
+.preview-journey-stages {
+  padding: 8px 0 4px;
+}
+
+.preview-stage-cards {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.preview-stage-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--outline-variant);
+  border-left: 3px solid var(--stage-accent, var(--primary));
+}
+
+.preview-stage-num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--stage-accent, var(--primary)) 18%, white);
+  color: var(--stage-accent, var(--primary));
+}
+
+.preview-stage-card strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+  margin-bottom: 2px;
+}
+
+.preview-stage-card p {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--on-surface-variant);
+  margin-bottom: 4px;
+}
+
+.preview-stage-goal {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--outline);
+}
+
+.preview-journey-footer {
+  margin-top: 4px;
+}
+
+@media (max-width: 480px) {
+  .preview-journey-tips {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-journey-tip {
+    flex-direction: row;
+    text-align: left;
+  }
 }
 
 .spirit-arena-sky {
@@ -1844,11 +2459,6 @@ body:has(.app--in-game) #root {
   border-color: var(--primary);
 }
 
-.spirit-card--selected {
-  border-color: var(--primary-container);
-  box-shadow: var(--shadow-glow-rose);
-}
-
 .spirit-card-art {
   position: relative;
   height: 140px;
@@ -1900,6 +2510,11 @@ body:has(.app--in-game) #root {
   position: relative;
   z-index: 1;
   background: transparent;
+}
+
+.spirit-arena-wrap--tall .spirit-arena-canvas,
+.spirit-arena-wrap--tall .spirit-arena-canvas--overlay {
+  height: 240px;
 }
 
 .spirit-arena-canvas--overlay {

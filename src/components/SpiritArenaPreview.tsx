@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { AvatarId } from '../game/types'
+import { MYTH_BUBBLE_PALETTE } from '../game/constants'
 import {
   createClouds,
   drawCloudLayer,
@@ -14,12 +15,26 @@ import { AnimatedSkySvg } from './AnimatedSkySvg'
 
 interface SpiritArenaPreviewProps {
   avatarId: AvatarId
+  tall?: boolean
+  showLegends?: boolean
 }
 
-export function SpiritArenaPreview({ avatarId }: SpiritArenaPreviewProps) {
+const PREVIEW_H = { normal: 200, tall: 240 } as const
+
+export function SpiritArenaPreview({
+  avatarId,
+  tall = false,
+  showLegends = false,
+}: SpiritArenaPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const cloudsRef = useRef<Cloud[]>([])
   const animRef = useRef(0)
+  const height = tall ? PREVIEW_H.tall : PREVIEW_H.normal
+
+  const bubblePalette = useMemo(
+    () => MYTH_BUBBLE_PALETTE[Math.floor(Math.random() * MYTH_BUBBLE_PALETTE.length)],
+    [avatarId],
+  )
 
   useEffect(() => {
     preloadSpiritImages()
@@ -36,7 +51,7 @@ export function SpiritArenaPreview({ avatarId }: SpiritArenaPreviewProps) {
 
     const resize = () => {
       const w = container.clientWidth
-      const h = 200
+      const h = height
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
       canvas.width = w * dpr
       canvas.height = h * dpr
@@ -54,9 +69,9 @@ export function SpiritArenaPreview({ avatarId }: SpiritArenaPreviewProps) {
       if (!t0) t0 = ts
       const t = (ts - t0) / 1000
       const w = container.clientWidth
-      const h = 200
+      const h = height
       const theme = getSpiritCloudTheme(avatarId, false)
-      const color = '#b5577a'
+      const { color, dim } = bubblePalette
 
       ctx.clearRect(0, 0, w, h)
       if (!usesPremiumSky(avatarId, false)) {
@@ -67,26 +82,18 @@ export function SpiritArenaPreview({ avatarId }: SpiritArenaPreviewProps) {
         drawCloudLayer(ctx, w, h, cloudsRef.current, t * 0.35, 'rgba(255, 255, 255, 0.1)')
       }
 
-      const mythX = w * 0.72 + Math.sin(t * 0.7) * 30
-      const mythY = 52 + Math.cos(t * 0.5) * 8
-      drawMiniMythCloud(ctx, mythX, mythY, 38, 'Myth floats by…', color, '#ffd9e3')
+      const mythX = w * 0.72 + Math.sin(t * 0.7) * 28
+      const mythY = 58 + Math.cos(t * 0.5) * 8
+      drawMiniMythCloud(ctx, mythX, mythY, 36, 'Myth floats by…', color, dim)
 
-      const factX = w * 0.22 + Math.cos(t * 0.55) * 24
-      const factY = 78 + Math.sin(t * 0.45) * 10
+      const factX = w * 0.22 + Math.cos(t * 0.55) * 22
+      const factY = 88 + Math.sin(t * 0.45) * 10
       drawMiniFactOrb(ctx, factX, factY, 22, 'Fact', t)
 
-      const spiritX = w * 0.5 + Math.sin(t * 1.4) * (w * 0.28)
-      const spiritY = h - 58
+      const spiritX = w * 0.5 + Math.sin(t * 1.4) * (w * 0.26)
+      const spiritY = h - 62
       const bob = Math.sin(t * 5) * 5
       drawSpiritImage(ctx, spiritX, spiritY, avatarId, color, 1.25, bob)
-
-      ctx.font = '600 9px "Plus Jakarta Sans", sans-serif'
-      ctx.fillStyle = 'rgba(74, 64, 54, 0.5)'
-      ctx.textAlign = 'center'
-      ctx.fillText('tap myths', mythX, mythY + 52)
-      ctx.fillText('collect facts', factX, factY + 34)
-      ctx.fillText('your type moves', spiritX, h - 12)
-      ctx.textAlign = 'left'
 
       animRef.current = requestAnimationFrame(tick)
     }
@@ -96,14 +103,26 @@ export function SpiritArenaPreview({ avatarId }: SpiritArenaPreviewProps) {
       cancelAnimationFrame(animRef.current)
       ro.disconnect()
     }
-  }, [avatarId])
+  }, [avatarId, bubblePalette, height])
 
   return (
-    <div className="spirit-arena-wrap">
+    <div
+      className={`spirit-arena-wrap ${tall ? 'spirit-arena-wrap--tall' : ''}`}
+      style={{ minHeight: height }}
+    >
       <AnimatedSkySvg variant={avatarId} className="spirit-arena-sky" />
       <canvas ref={canvasRef} className="spirit-arena-canvas spirit-arena-canvas--overlay" />
+
+      {showLegends && (
+        <div className="spirit-arena-legends" aria-hidden>
+          <span className="spirit-arena-legend spirit-arena-legend--myth">Tap myths</span>
+          <span className="spirit-arena-legend spirit-arena-legend--fact">Collect orbs</span>
+          <span className="spirit-arena-legend spirit-arena-legend--spirit">Drag to move</span>
+        </div>
+      )}
+
       <p className="spirit-arena-caption label-caps">
-        Live preview — sky moves with your type
+        Live preview — sky &amp; spirit match your type
       </p>
     </div>
   )
