@@ -1,0 +1,115 @@
+:root {
+  /* Luminous Transition — surfaces */
+  --surface: #fff8f4;
+  --surface-dim: #e7d7c9;
+  --surface-bright: #fff8f4;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #fff1e6;
+  --surface-container: #fcebdd;
+  --surface-container-high: #f6e5d7;
+  --surface-container-highest: #f0e0d2;
+  --surface-variant: #f0e0d2;
+  --background: #fff8f4;
+  --cream: #fffbf7;
+
+  /* On-surface & text */
+  --on-surface: #221a12;
+  --on-surface-variant: #534247;
+  --on-background: #221a12;
+  --text-soft: #4a4036;
+  --inverse-surface: #382f25;
+  --inverse-on-surface: #feeee0;
+
+  /* Outline */
+  --outline: #867277;
+  --outline-variant: #d9c0c6;
+
+  /* Primary — dusty rose journey anchor */
+  --surface-tint: #984062;
+  --primary: #973f61;
+  --on-primary: #ffffff;
+  --primary-container: #b5577a;
+  --on-primary-container: #ffffff;
+  --inverse-primary: #ffb0c9;
+  --primary-fixed: #ffd9e3;
+  --primary-fixed-dim: #ffb0c9;
+  --on-primary-fixed: #3e001e;
+  --on-primary-fixed-variant: #7b284a;
+  --blush: #b5577a;
+  --rose-deep: #973f61;
+
+  /* Secondary — lavender grace */
+  --secondary: #64568c;
+  --on-secondary: #ffffff;
+  --secondary-container: #d1c0fe;
+  --on-secondary-container: #5a4c81;
+  --secondary-fixed: #e8ddff;
+  --secondary-fixed-dim: #cebdfb;
+  --on-secondary-fixed: #201144;
+  --on-secondary-fixed-variant: #4c3e72;
+  --lavender: #8e7fb8;
+
+  /* Tertiary & gold — Final Truth */
+  --tertiary: #7b5711;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #966f29;
+  --on-tertiary-container: #fffeff;
+  --tertiary-fixed: #ffdead;
+  --tertiary-fixed-dim: #efbf70;
+  --on-tertiary-fixed: #281900;
+  --on-tertiary-fixed-variant: #604100;
+  --gold: #d6a85c;
+  --gold-glow: rgba(214, 168, 92, 0.45);
+
+  /* Functional semantics */
+  --true: #7e9e7e;
+  --true-bg: rgba(126, 158, 126, 0.1);
+  --false: #e0935f;
+  --false-bg: rgba(224, 147, 95, 0.1);
+
+  /* Error */
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+
+  /* Shape */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --space-unit: 8px;
+  --container-pad: 20px;
+  --container-pad-desktop: 40px;
+  --gutter: 24px;
+  --card-gap: 16px;
+  --max-width: 768px;
+
+  /* Elevation — tonal layering & soft diffusion */
+  --shadow-card:
+    0 8px 32px rgba(181, 87, 122, 0.12),
+    0 1px 0 rgba(255, 251, 247, 0.8) inset;
+  --shadow-card-elevated:
+    0 12px 40px rgba(181, 87, 122, 0.18),
+    0 0 0 1px rgba(217, 192, 198, 0.4);
+  --shadow-glow-rose:
+    0 0 24px rgba(255, 176, 201, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-glow-gold:
+    0 0 28px var(--gold-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --shadow-glow-lavender: 0 0 24px rgba(209, 192, 254, 0.4);
+  --glass-bg: rgba(255, 251, 247, 0.72);
+  --glass-border: rgba(217, 192, 198, 0.45);
+  --glass-blur: 12px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --container-pad: var(--container-pad-desktop);
+  }
+}
