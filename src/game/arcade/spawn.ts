@@ -71,19 +71,31 @@ export function mythBubbleRadius(w: number, isBoss = false): number {
   return isBoss ? Math.round(base * 1.35) : base
 }
 
-export function pickBubblePalette(lastIndex = -1): {
+export function pickBubblePalette(
+  lastIndex = -1,
+  excludeIndices: number[] = [],
+): {
   color: string
   dim: string
   halo: string
   index: number
 } {
-  const pool =
-    lastIndex < 0
-      ? MYTH_BUBBLE_PALETTE.map((_, i) => i)
-      : MYTH_BUBBLE_PALETTE.map((_, i) => i).filter((i) => i !== lastIndex)
+  let pool = MYTH_BUBBLE_PALETTE.map((_, i) => i).filter(
+    (i) => !excludeIndices.includes(i),
+  )
+  if (lastIndex >= 0 && pool.length > 1) {
+    pool = pool.filter((i) => i !== lastIndex)
+  }
+  if (pool.length === 0) {
+    pool = MYTH_BUBBLE_PALETTE.map((_, i) => i).filter((i) => i !== lastIndex)
+  }
   const index = pool[Math.floor(Math.random() * pool.length)] ?? 0
   const entry = MYTH_BUBBLE_PALETTE[index]
   return { ...entry, index }
+}
+
+export function paletteIndexForColor(color: string): number {
+  return MYTH_BUBBLE_PALETTE.findIndex((p) => p.color === color)
 }
 
 export function spawnMythBubble(
@@ -95,13 +107,15 @@ export function spawnMythBubble(
   radius?: number,
   isBoss = false,
   lastPaletteIndex = -1,
+  excludePaletteIndices: number[] = [],
+  stackIndex = 0,
 ): MythBubble {
   const r = radius ?? mythBubbleRadius(w, isBoss)
-  const startY = yStart ?? -(r * 1.1)
+  const startY = yStart ?? -(r * 1.1) - stackIndex * (r * 1.8)
   const x = isBoss ? w / 2 : pickSpawnX(w, r, startY, obstacles)
   const palette = isBoss
     ? { color: '#d6a85c', dim: '#ffdead', halo: 'rgba(255, 222, 173, 0.22)', index: -1 }
-    : pickBubblePalette(lastPaletteIndex)
+    : pickBubblePalette(lastPaletteIndex, excludePaletteIndices)
   return {
     id: uid(),
     kind: 'myth',

@@ -3,6 +3,7 @@ import { getClosingReflection } from '../game/helpers'
 import { Button } from './Button'
 import { ClarityBar } from './ClarityBar'
 import { JourneyPath } from './JourneyPath'
+import { LogoMark } from './LogoMark'
 
 interface ResultsScreenProps {
   resultType: ResultType
@@ -16,6 +17,14 @@ interface ResultsScreenProps {
   onGoDeeper: () => void
   onWalkAgain: () => void
 }
+
+const STAT_ITEMS = [
+  { key: 'myths', label: 'Myths busted', value: (_s: RunStats, busted: number) => String(busted) },
+  { key: 'combo', label: 'Best combo', value: (s: RunStats) => `${s.bestCombo}×` },
+  { key: 'gems', label: 'Truth gems', value: (s: RunStats) => String(s.gems) },
+  { key: 'score', label: 'Points', value: (s: RunStats) => String(s.score) },
+  { key: 'xp', label: 'XP earned', value: (s: RunStats) => String(s.xp) },
+] as const
 
 export function ResultsScreen({
   resultType,
@@ -35,79 +44,102 @@ export function ResultsScreen({
     stagesCleared,
     reachedFinalTruth,
   )
+  const clarityPct = maxClarity > 0 ? Math.round((clarity / maxClarity) * 100) : 0
 
   return (
     <div className="results-screen">
-      <p className="label-caps results-eyebrow">Clarity Report</p>
-      <h2 className="headline-md">
-        {isFull ? 'Full Clarity' : 'Partial Clarity'}
-      </h2>
+      <LogoMark />
+      <div className="results-hero-glow" aria-hidden />
 
-      <p className="results-reflection truth-highlight">{reflection}</p>
+      <header className="results-hero">
+        <div
+          className={`results-outcome-badge ${isFull ? 'results-outcome-badge--full' : 'results-outcome-badge--partial'}`}
+          aria-hidden
+        >
+          {isFull ? '✦' : '◇'}
+        </div>
+        <p className="label-caps results-eyebrow">Clarity report</p>
+        <h2 className="headline-md results-title">
+          {isFull ? 'Full Clarity' : 'Partial Clarity'}
+        </h2>
+        <p className="results-reflection">{reflection}</p>
+        <p className="results-clarity-pill">
+          Clarity remaining · <strong>{clarityPct}%</strong>
+        </p>
+      </header>
 
-      <div className="results-journey-wrap">
-        <span className="label-caps">Your journey</span>
+      <div className="results-stats-grid">
+        {STAT_ITEMS.map((item) => (
+            <div key={item.key} className={`results-stat-card results-stat-card--${item.key}`}>
+              <strong>{item.value(runStats, bustedMyths.length)}</strong>
+              <span>{item.label}</span>
+            </div>
+          ))}
+      </div>
+
+      {runStats.badgesEarned.length > 0 && (
+        <section className="results-panel results-panel--badges">
+          <h3 className="label-caps results-panel-title">Achievements unlocked</h3>
+          <ul className="results-badge-list">
+            {runStats.badgesEarned.map((b) => (
+              <li key={b}>
+                <span className="results-badge-icon" aria-hidden>
+                  🏅
+                </span>
+                {b}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="results-panel results-panel--journey">
+        <h3 className="label-caps results-panel-title">Your journey</h3>
         <JourneyPath
           stagesCleared={Math.max(-1, stagesCleared - 1)}
           finalUnlocked={reachedFinalTruth}
           finalCompleted={isFull}
           compact
         />
-      </div>
-
-      <ClarityBar clarity={clarity} maxClarity={maxClarity} />
-
-      <div className="results-stats">
-        <div className="results-stat">
-          <strong>{bustedMyths.length}</strong>
-          <span>myths busted</span>
+        <div className="results-clarity-wrap">
+          <ClarityBar clarity={clarity} maxClarity={maxClarity} showHeader={false} />
         </div>
-        <div className="results-stat">
-          <strong>{runStats.bestCombo}</strong>
-          <span>best combo</span>
-        </div>
-        <div className="results-stat">
-          <strong>{runStats.gems}</strong>
-          <span>truth gems</span>
-        </div>
-        <div className="results-stat">
-          <strong>{runStats.score}</strong>
-          <span>points</span>
-        </div>
-      </div>
-
-      {runStats.badgesEarned.length > 0 && (
-        <div className="results-badges">
-          <span className="label-caps">Achievements</span>
-          <ul>
-            {runStats.badgesEarned.map((b) => (
-              <li key={b}>{b}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      </section>
 
       {bustedMyths.length > 0 && (
-        <div className="busted-list">
-          <span className="label-caps">What you learned</span>
-          <ul>
+        <section className="results-panel results-panel--learned">
+          <h3 className="label-caps results-panel-title">
+            What you learned · {bustedMyths.length}
+          </h3>
+          <ul className="results-learned-list">
             {bustedMyths.map((m, i) => (
-              <li key={i}>
-                <p className="busted-myth">{m.statement}</p>
-                <p className="busted-truth">{m.truth}</p>
-                <span className="busted-stage">{m.stage}</span>
+              <li key={i} className="results-learned-item">
+                <span className="results-learned-stage">{m.stage}</span>
+                <p className="results-learned-myth">{m.statement}</p>
+                <p className="results-learned-truth">
+                  <span className="results-learned-truth-label">Truth</span>
+                  {m.truth}
+                </p>
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
 
-      <div className="results-actions results-actions--row">
-        {canGoDeeper && <Button onClick={onGoDeeper}>Go Deeper</Button>}
-        <Button onClick={onWalkAgain} variant={canGoDeeper ? 'secondary' : 'primary'}>
+      <footer className="results-actions">
+        {canGoDeeper && (
+          <Button onClick={onGoDeeper} className="results-btn-primary">
+            Go Deeper
+          </Button>
+        )}
+        <Button
+          onClick={onWalkAgain}
+          variant={canGoDeeper ? 'secondary' : 'primary'}
+          className={canGoDeeper ? undefined : 'results-btn-primary'}
+        >
           Walk the Journey Again
         </Button>
-      </div>
+      </footer>
     </div>
   )
 }

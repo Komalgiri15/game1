@@ -507,7 +507,16 @@ export const MYTH_BUBBLE_PALETTE = [
   { color: '#6a9e8a', dim: '#d8f0e4', halo: 'rgba(170, 220, 195, 0.2)' },
   { color: '#5a8eb8', dim: '#d4eaf8', halo: 'rgba(160, 205, 240, 0.2)' },
   { color: '#c96a88', dim: '#ffe2ec', halo: 'rgba(255, 175, 200, 0.2)' },
+  { color: '#e0935f', dim: '#ffe8d4', halo: 'rgba(255, 200, 160, 0.22)' },
+  { color: '#9a6b8a', dim: '#f0e0ec', halo: 'rgba(210, 175, 200, 0.2)' },
+  { color: '#5aabaa', dim: '#d4f0f0', halo: 'rgba(150, 210, 210, 0.2)' },
+  { color: '#a88bc9', dim: '#ede4f8', halo: 'rgba(200, 175, 230, 0.2)' },
+  { color: '#7a9e5a', dim: '#e4f0d8', halo: 'rgba(180, 220, 150, 0.2)' },
+  { color: '#c4a86a', dim: '#f5ecd8', halo: 'rgba(230, 210, 160, 0.22)' },
 ] as const
+
+/** Max myth bubbles on screen at once */
+export const MAX_ACTIVE_MYTHS = 2
 
 /** Stage 1 = 1×, stage 2 = 1.5×, stage 3 = 2× drift speed */
 export function stageSpeedMultiplier(stageIndex: number): number {

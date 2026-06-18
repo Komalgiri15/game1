@@ -317,11 +317,11 @@ export function ArcadeGameplayScreen({
           className="arcade-sky-svg"
         />
         <canvas ref={canvasRef} className="arcade-canvas arcade-canvas--overlay" />
+        {mythPopup && (
+          <MythBustPopup statement={mythPopup.statement} truth={mythPopup.truth} />
+        )}
+        {factToast && <FactToast label={factToast.label} truth={factToast.truth} />}
       </div>
-      {mythPopup && (
-        <MythBustPopup statement={mythPopup.statement} truth={mythPopup.truth} />
-      )}
-      {factToast && <FactToast label={factToast.label} truth={factToast.truth} />}
     </div>
   )
 }

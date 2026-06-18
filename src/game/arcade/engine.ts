@@ -1,5 +1,5 @@
 import type { BustedMyth, DifficultyId, FinalTruthPart } from '../types'
-import { DIFFICULTY_SPAWN, DIFFICULTY_SPEED, MYTH_BUBBLE_PALETTE, STAGES, stageSpeedMultiplier } from '../constants'
+import { DIFFICULTY_SPAWN, DIFFICULTY_SPEED, MAX_ACTIVE_MYTHS, STAGES, stageSpeedMultiplier } from '../constants'
 import { createClouds } from './clouds'
 import { mythDrawPos } from './draw'
 import { circleHit, clamp, pointInCircle } from './physics'
@@ -18,6 +18,7 @@ import {
   spawnBoss,
   spawnFactOrb,
   spawnMythBubble,
+  paletteIndexForColor,
   type SpawnObstacle,
 } from './spawn'
 import { drawWorld, spawnBurst } from './draw'
@@ -351,12 +352,16 @@ export function updateWorld(
   })
 
   if (!world.isFinal) {
-    const activeMyths = world.myths.filter((m) => !m.dying).length
-    if (activeMyths === 0 && world.mythsBusted < world.mythsNeeded) {
+    const activeMyths = world.myths.filter((m) => !m.dying)
+    const activeCount = activeMyths.length
+    if (activeCount < MAX_ACTIVE_MYTHS && world.mythsBusted < world.mythsNeeded) {
       world.spawnTimer -= dt
       if (world.spawnTimer <= 0) {
         const q = popMyth(world)
         if (q) {
+          const usedPalette = activeMyths
+            .map((m) => paletteIndexForColor(m.bubbleColor))
+            .filter((i) => i >= 0)
           const bubble = spawnMythBubble(
             world.width,
             q,
@@ -366,19 +371,19 @@ export function updateWorld(
             undefined,
             false,
             world.lastBubblePaletteIndex,
+            usedPalette,
+            activeCount,
           )
           world.myths.push(bubble)
-          const idx = bubble.bubbleColor
-            ? MYTH_BUBBLE_PALETTE.findIndex((p) => p.color === bubble.bubbleColor)
-            : -1
+          const idx = paletteIndexForColor(bubble.bubbleColor)
           if (idx >= 0) world.lastBubblePaletteIndex = idx
-          world.spawnTimer = world.difficultySpawn
+          world.spawnTimer = activeCount >= 1 ? world.difficultySpawn * 0.85 : world.difficultySpawn
         }
       }
     }
 
     world.factSpawnTimer -= dt
-    const maxFacts = activeMyths > 0 ? 3 : 4
+    const maxFacts = activeCount > 0 ? 3 : 4
     if (world.factSpawnTimer <= 0 && world.facts.length < maxFacts) {
       world.facts.push(
         spawnFactOrb(

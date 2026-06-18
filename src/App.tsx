@@ -287,6 +287,8 @@ export default function App() {
 
       {phase === 'results' && difficultyId && (
         <div className="screen screen--results">
+          <div className="app-glow app-glow--rose results-glow" aria-hidden />
+          <div className="app-glow app-glow--lavender results-glow results-glow--2" aria-hidden />
           <ResultsScreen
             resultType={resultType}
             bustedMyths={busted}
@@ -302,7 +304,7 @@ export default function App() {
         </div>
       )}
 
-      {!inGame && !['setup-cards', 'setup-spirit', 'intro'].includes(phase) && (
+      {!inGame && !['setup-cards', 'setup-spirit', 'intro', 'results'].includes(phase) && (
         <footer className="app-credit">
           Based on{' '}
           <em>
